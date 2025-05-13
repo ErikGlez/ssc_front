@@ -3,7 +3,7 @@
 
     <div style="display: flex; align-items: center;">
       <button class="btnAdd">
-          Añadir vacante
+          Añadir registro
       </button>
 
       <div class="search">
@@ -17,6 +17,7 @@
             <p class="lrg">Nombre</p>
             <p class="lrg">Correo</p>
             <p class="lrg">Número de teléfono</p>
+            <p class="lrg">Vacante Puesto</p>
             <p class="md">Estado</p>
             <p class="md">Foto de perfil</p>
             <p class="md">Creada</p>
@@ -28,6 +29,7 @@
                  <p class="lrg">{{ item.fields.Nombre }}</p>
                   <p class="lrg"> {{ item.fields.Correo }}</p>
                   <p class="lrg"> {{ item.fields['Número de teléfono'] }}</p>
+                      <p class="lrg"> {{ item.fields['Puesto (from Vacantes)'][0] }}</p>
                   <p class="md">
                     <span class="optionBg" :class="{ 
                       'bg-2': item.fields.Estado === 'Completada',

@@ -17,14 +17,15 @@ export default {
 @import "./css/optionContent.css";
 @import "./css/search.css";
 @import "./css/modal.css";
-
+@import "./css/modalAdd.css";
 *{
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
+  overflow: auto;
 }
 
-input:focus-visible {
+input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: none !important;
 }
 

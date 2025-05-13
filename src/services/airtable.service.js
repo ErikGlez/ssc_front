@@ -19,18 +19,18 @@ export default {
     return res.data.records;
   },
 
-  async createRecord(data, table_name) {
+  async createRecord({data, table_name}) {
     const airtable = axios.create({
-      baseURL: `${URL}${BASE_ID}/${table_name}`,
+      baseURL: `${URL}/${table_name}`,
       headers: HEADERS
     });
     const res = await airtable.post('/', { fields: data });
     return res.data;
   },
 
-  async updateRecord(id, data, table_name) {
+  async updateRecord({id, data, table_name}) {
     const airtable = axios.create({
-      baseURL: `${URL}${BASE_ID}/${table_name}`,
+      baseURL: `${URL}/${table_name}`,
       headers: HEADERS
     });
     const res = await airtable.patch(`/${id}`, { fields: data });

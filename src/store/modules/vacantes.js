@@ -91,17 +91,6 @@ export default {
       }
     },
 
-    async getInfoById({ commit }, payload) {
-      commit(GETTING_INFO);
-
-      try {
-       
-        return payload;
-      } catch (error) {
-        if(!error?.response?.data?.message) return  ERROR_OBJ;
-        return getErrorMessage(error.response.data.message)
-      }
-    },
 
     async deleteItem({ commit }, payload) {
       try {
@@ -117,7 +106,8 @@ export default {
       commit(SET_STATUS, "SUCCESS");
 
       try {
-         return payload;
+        const response = await airtableService.updateRecord(payload);
+        return response
       } catch (error) {
         if(!error?.response?.data?.message) return  ERROR_OBJ;
         return getErrorMessage(error.response.data.message)
@@ -128,7 +118,8 @@ export default {
       commit(SET_STATUS, "SUCCESS");
 
       try {
-          return payload;
+        const response = await airtableService.createRecord(payload);
+        return response
       } catch (error) {
         if(!error?.response?.data?.message) return  ERROR_OBJ;
         return getErrorMessage(error.response.data.message)
