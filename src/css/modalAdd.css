@@ -1,0 +1,82 @@
+  .modalAdd{
+    background-color: white;
+    box-shadow: 0 0 .6944vw 0 rgba(0, 0, 0, 0.15);
+    border-radius: .5rem;
+    width: 42.875rem;
+    height: 52.438rem;
+    overflow: auto;
+  }
+
+  .close{
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    box-sizing: border-box;
+    justify-content: right;
+    padding-right: 1rem;
+  }
+
+  .close svg{
+    width: 1rem;
+  }
+
+  .modalAddBody{
+    box-sizing: border-box;
+    height: 45rem;
+    padding: 3rem;
+  }
+
+  .modalAddBody h2{
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e4e4e4;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  .modalAddFooter p{
+    color: rgb(88, 88, 211);
+    font-size: .8rem;
+    cursor: pointer;
+  }
+
+  .modalAddFooter{
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+    justify-content: space-between;
+    padding: 1rem 2rem
+  }
+
+  .grpForm{
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.grpForm label{
+  font-size: .8rem;
+  font-weight: 500;
+  margin-bottom: .2rem;
+}
+
+.grpForm input{
+   border: 1px solid #ccc;
+   box-sizing: border-box;
+   padding: .5rem;
+   height: 2rem;
+   border-radius: .5rem;
+}
+.grpForm textarea{
+  border: 1px solid #ccc;
+   box-sizing: border-box;
+   padding: .5rem;
+   height: 6rem;
+   border-radius: .5rem;
+   resize: none;
+}
+.grpForm select{
+   border: 1px solid #ccc;
+   box-sizing: border-box;
+   height: 2rem;
+   border-radius: .5rem;
+}

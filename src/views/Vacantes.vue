@@ -2,7 +2,7 @@
   <div class="optionContent">
 
     <div style="display: flex; align-items: center;">
-      <button class="btnAdd">
+      <button class="btnAdd" @click="viewModalAdd=true">
           Añadir vacante
       </button>
 
@@ -61,6 +61,45 @@
     </div>
 
 
+    <div v-if="viewModalAdd" class="modalView">
+        <div class="modalAdd">
+          <form @submit.prevent="createItem(Puesto, Descripcion, Salario, Departamento)">
+            <div class="close">
+            <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
+          </div>
+          <div class="modalAddBody">
+            <h2>Nueva vacante</h2>
+
+            <div class="grpForm">
+              <label for="Puesto">Puesto</label>
+              <input type="text" v-model="Puesto" required>
+            </div>
+           <div class="grpForm">
+              <label for="Descripcion">Descripción</label>
+              <textarea type="text" v-model="Descripcion" required> </textarea>
+            </div>
+         <div class="grpForm">
+              <label for="Salario">Salario</label>
+            <input type="number" v-model="Salario" required>
+            </div>
+             <div class="grpForm">
+              <label for="Departamento">Departamento</label>
+              <select v-model="Departamento" name="Departamento" id="Departamento" required>
+                <option :value="item" v-for="(item, index) in listDepartamentos" :key="index">{{ item }}</option>
+              </select>
+            </div>
+ 
+          </div>
+          <div class="modalAddFooter" >
+            <p @click="clearValues()">Borrar formulario</p>
+            <button class="btnAdd" type="submit">
+              Crear
+            </button>
+          </div>
+          </form>
+        </div>
+    </div>
+
 
   </div>
 </template>
@@ -76,9 +115,23 @@ export default {
         regLoading: false,
         process: "",
         viewModal:false,
+        viewModalAdd:false,
         itemSel: null,
         formatCurrency,
-        includesValue
+        includesValue,
+
+        Puesto:'',
+        Descripcion:'',
+        Salario:'',
+        Departamento:'',
+        listDepartamentos: [
+          'Diseño',
+          'Desarrollo',
+          'Social Media',
+          'Otro'
+        ],
+
+
     }
   },
   async created(){
@@ -95,7 +148,7 @@ export default {
     }
   },
   methods:{
-    ...mapActions('vacantes', ['getAllInfo', 'deleteItem']),
+    ...mapActions('vacantes', ['getAllInfo', 'deleteItem', 'addItem']),
     async updateInfo(){
         this.regLoading = true
         this.process = 'Obteniendo vacantes'
@@ -103,7 +156,32 @@ export default {
         this.regLoading = false
         this.process = ''
     },
-    
+
+    clearValues(){
+      this.Puesto = ''
+      this.Descripcion = ''
+      this.Salario = ''
+      this.Departamento = ''
+    },
+
+    async createItem(Puesto, Descripcion, Salario, Departamento){
+      this.viewModalAdd = false
+      this.regLoading = true
+      this.process = 'Creando vacante'
+
+      await this.addItem({
+        data: { Puesto, Descripcion, Salario: parseFloat(Salario), Departamento },
+        table_name: 'Vacantes'
+      })
+      this.clearValues()
+
+      this.process = 'Obteniendo vacantes'
+      await this.updateInfo() 
+      this.regLoading = false
+      this.process = ''
+
+    },
+
     async remove(){
       this.viewModal = false
       this.regLoading = true
@@ -124,3 +202,9 @@ export default {
 }
 
 </script>
+
+<style>
+
+
+
+</style>
