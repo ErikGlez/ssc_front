@@ -3,7 +3,7 @@
 
     <div style="display: flex; align-items: center;">
       <button class="btnAdd">
-          Añadir vacante
+          Añadir registro
       </button>
 
       <div class="search">
