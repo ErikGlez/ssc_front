@@ -28,7 +28,7 @@ export default {
     return res.data;
   },
 
-  async updateRecord(id, data, table_name) {
+  async updateRecord({id, data, table_name}) {
     const airtable = axios.create({
       baseURL: `${URL}/${table_name}`,
       headers: HEADERS

@@ -31,7 +31,7 @@
                       'bg-2': item.fields.Departamento === 'Desarrollo',
                       'bg-3': item.fields.Departamento === 'Social Media',
                       'bg-4': item.fields.Departamento === 'Otro', 'color-wh': item.fields.Departamento !== 'Otro', }" > {{item.fields.Departamento}}</span></p>
-                <p class="op"><svg data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
+                <p class="op"><svg @click="viewModalEdit=true, setValues(item)" data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
                 <p class="op"><svg @click="viewModal=true, itemSel = item" data-icon-name="delete-alt" data-style="line" icon_origin_id="20441" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="delete-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: red; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M4,7H20M16,7V4a1,1,0,0,0-1-1H9A1,1,0,0,0,8,4V7M18,20V7H6V20a1,1,0,0,0,1,1H17A1,1,0,0,0,18,20Zm-8-9v6m4-6v6" id="primary"></path></svg></p>
             </div>
         </div>
@@ -64,7 +64,7 @@
     <div v-if="viewModalAdd" class="modalView">
         <div class="modalAdd">
           <form @submit.prevent="createItem(Puesto, Descripcion, Salario, Departamento)">
-            <div class="close">
+            <div class="close" @click="clearValues(), viewModalAdd=false">
             <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
           </div>
           <div class="modalAddBody">
@@ -100,6 +100,44 @@
         </div>
     </div>
 
+    <div v-if="viewModalEdit" class="modalView">
+        <div class="modalAdd">
+          <form @submit.prevent="updateItem(Puesto, Descripcion, Salario, Departamento)">
+            <div class="close"  @click="clearValues(), viewModalEdit=false">
+            <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
+          </div>
+          <div class="modalAddBody">
+            <h2>Actualizar vacante</h2>
+
+            <div class="grpForm">
+              <label for="Puesto">Puesto</label>
+              <input type="text" v-model="Puesto" required>
+            </div>
+           <div class="grpForm">
+              <label for="Descripcion">Descripción</label>
+              <textarea type="text" v-model="Descripcion" required> </textarea>
+            </div>
+         <div class="grpForm">
+              <label for="Salario">Salario</label>
+            <input type="number" v-model="Salario" required>
+            </div>
+             <div class="grpForm">
+              <label for="Departamento">Departamento</label>
+              <select v-model="Departamento" name="Departamento" id="Departamento" required>
+                <option :value="item" v-for="(item, index) in listDepartamentos" :key="index">{{ item }}</option>
+              </select>
+            </div>
+ 
+          </div>
+          <div class="modalAddFooter" >
+            <p @click="clearValues(), viewModalEdit=false">Cancelar</p>
+            <button class="btnAdd" type="submit">
+              Actualizar
+            </button>
+          </div>
+          </form>
+        </div>
+    </div>
 
   </div>
 </template>
@@ -116,10 +154,12 @@ export default {
         process: "",
         viewModal:false,
         viewModalAdd:false,
+        viewModalEdit:false,
         itemSel: null,
         formatCurrency,
         includesValue,
 
+        id: '',
         Puesto:'',
         Descripcion:'',
         Salario:'',
@@ -148,7 +188,15 @@ export default {
     }
   },
   methods:{
-    ...mapActions('vacantes', ['getAllInfo', 'deleteItem', 'addItem']),
+    ...mapActions('vacantes', ['getAllInfo', 'deleteItem', 'addItem' , 'editItem']),
+    setValues(item){
+      const data = structuredClone(item)
+      this.id = data.id
+      this.Puesto =  data.fields.Puesto
+      this.Salario =  data.fields.Salario
+      this.Descripcion =  data.fields.Descripcion
+      this.Departamento =  data.fields.Departamento
+    },
     async updateInfo(){
         this.regLoading = true
         this.process = 'Obteniendo vacantes'
@@ -162,6 +210,7 @@ export default {
       this.Descripcion = ''
       this.Salario = ''
       this.Departamento = ''
+      this.itemSel = null
     },
 
     async createItem(Puesto, Descripcion, Salario, Departamento){
@@ -182,6 +231,24 @@ export default {
 
     },
 
+    async updateItem(Puesto, Descripcion, Salario, Departamento){
+        this.viewModalEdit = false
+        this.regLoading = true
+        this.process = 'Actualizando vacante'
+
+        await this.editItem({
+          id: this.id,
+          data: { Puesto, Descripcion, Salario: parseFloat(Salario), Departamento },
+          table_name: 'Vacantes'
+        })
+        this.clearValues()
+
+        this.process = 'Obteniendo vacantes'
+        await this.updateInfo() 
+        this.regLoading = false
+        this.process = ''
+
+      },
     async remove(){
       this.viewModal = false
       this.regLoading = true
