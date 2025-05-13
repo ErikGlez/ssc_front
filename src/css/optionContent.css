@@ -1,0 +1,102 @@
+ .optionContent{
+        box-sizing: border-box;
+        padding-top: 1rem;
+        padding-left: 2rem;
+        
+    }
+    .tableContent{
+        margin-top: 2rem;
+    }
+    .headerTable{
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+        height: 1.5rem;
+    }
+    .headerTable p{
+        font-size: .8rem;
+        box-sizing: border-box;
+        padding-right: 1rem;
+    }
+
+    .tableRow{
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+     
+    }
+
+    .tableRow p{
+        padding-top: .3rem;
+        padding-right: 1rem;
+        font-size: .9rem;
+        white-space: nowrap;      
+        overflow: hidden;         
+        text-overflow: ellipsis;   
+        box-sizing: border-box;
+        height: 2rem;
+    }
+
+    p.lrg{
+        width: 15rem;
+    }
+
+    p.md{
+        width: 10rem;
+    }
+
+
+    .btnAdd{
+        background-color: #414347;
+        color: white;
+        border: none;
+        border-radius: .5rem;
+        padding: 0rem .5rem;
+        height: 2rem;
+        cursor: pointer;
+    }
+    .op{
+      padding: 0vw;
+      width: 5rem;
+      display: flex;
+      justify-content: center;
+
+    }
+    .op svg{
+      width: 1rem;
+      height: 1rem;
+      padding: 0vw;
+      cursor: pointer;
+    }
+
+    .optionBg{
+      background-color: grey;
+      padding:0rem .5rem;
+      border-radius: 1rem;
+    }
+
+    .bg-1{
+      background-color: #F797EF;
+    }
+
+    .bg-2{
+      background-color: #048A0E;
+    }
+
+    .bg-3{
+      background-color: #166EE1;
+    }
+
+    .bg-4{
+      background-color: #D1E2FF;
+    }
+
+    .bg-5{
+      background-color: #FFD66B;
+    }
+
+     .color-wh{
+      color: white;
+    }
+
+
