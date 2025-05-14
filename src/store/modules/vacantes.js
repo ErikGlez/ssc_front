@@ -78,7 +78,7 @@ export default {
       commit(SET_HISTORY_OPTION, payload);
     },
 
-    async getAllInfo({ commit }, payload) {
+    async getAllInfoVacantes({ commit }, payload) {
       commit(GETTING_INFO);
 
       try {

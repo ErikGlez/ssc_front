@@ -34,6 +34,17 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   justify-content: center;
 }
 
+.mgs_error{
+  background-color: rgb(204, 35, 35);
+  width: fit-content;
+  min-width: 20rem;
+  color: white;
+  margin: 1rem 0rem;
+  box-sizing: border-box;
+  padding: 0rem .5rem;
+  font-weight: 300;
+  font-size: 1rem;
+}
 
 
  
