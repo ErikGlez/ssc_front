@@ -36,7 +36,7 @@
                       'bg-3': item.fields.Estado === 'Pendiente',
                       'bg-5': item.fields.Estado === 'En Proceso', 'color-wh': item.fields.Estado === 'Pendiente' ||  item.fields.Estado === 'Completada',}"  > {{ item.fields.Estado }}</span>
                   </p>
-                  <p class="md" ><img v-if="item.fields['Foto de perfil']" :src="`${ item.fields['Foto de perfil'][0].thumbnails.small.url }`" @click="viewModalFoto=true, urlFoto = item.fields['Foto de perfil'][0].thumbnails.full.url " alt="Foto de perfil" style="cursor: pointer;"></p>
+                  <p class="md" ><img v-if="item.fields['Foto de perfil']" :src="`${ item.fields['Foto de perfil'][0].url }`" @click="viewModalFoto=true, urlFoto = item.fields['Foto de perfil'][0].url " alt="Foto de perfil" style="cursor: pointer; height: 2rem;"></p>
                   <p class="md">{{ item.fields.Creada | formatDate }}</p>
               
                 <p class="op"><svg @click="viewModalEdit=true, setValues(item)" data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
@@ -75,7 +75,7 @@
 
     <div v-if="viewModalAdd" class="modalView">
         <div class="modalAdd">
-          <form @submit.prevent="createItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante)">
+          <form @submit.prevent="createItem(Nombre, Correo, Numero, LinkedIn, Estado,  Vacante)">
             <div class="close" @click="clearValues(), viewModalAdd=false">
             <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
           </div>
@@ -112,7 +112,10 @@
                 <option :value="item" v-for="(item, index) in listEstado" :key="index">{{ item }}</option>
               </select>
             </div>
-
+           <div class="grpForm">
+              <label for="FileUpload">Subir foto de perfil</label>
+               <input  style="height: auto;" name="FileUpload" type="file" @change="handleFileUpload" accept="image/*">
+            </div>
             
           </div>
           <div class="modalAddFooter" >
@@ -127,7 +130,7 @@
 
     <div v-if="viewModalEdit" class="modalView">
         <div class="modalAdd">
-          <form @submit.prevent="updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante)">
+          <form @submit.prevent="updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Vacante)">
             <div class="close" @click="clearValues(), viewModalEdit = false">
             <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
           </div>
@@ -165,9 +168,13 @@
               </select>
             </div>
 
+             <div class="grpForm">
+              <label for="FileUpload">Subir nueva foto de perfil</label>
+               <input  style="height: auto;" name="FileUpload" type="file" @change="handleFileUpload" accept="image/*">
+            </div>
 
             <div class="grpForm">
-              <label style="font-weight: 300; text-align: right; margin-top: 4rem;">Ultima actualización el {{ updated_at | formatDateFull }}</label>
+              <label style="font-weight: 300; text-align: right; margin-top: 2rem;">Ultima actualización el {{ updated_at | formatDateFull }}</label>
             </div>
             
           </div>
@@ -193,6 +200,7 @@
 <script>
 import { mapActions } from 'vuex';
 import { formatCurrency, includesValue } from '@/helpers';
+import AirtableService from '@/services/airtable.service';
 import dayjs from 'dayjs';
 export default {
   name: 'Contrataciones',
@@ -224,6 +232,7 @@ export default {
           'En Proceso',
           'Completada'
         ],
+        selectedFile: null
     }
   },
   async created(){
@@ -260,10 +269,10 @@ export default {
       this.itemSel = null
       this.id = ''
       this.updated_at = ''
+      this.selectedFile = null
     },
      setValues(item){
       const data = structuredClone(item)
-      console.log(data)
       this.id = data.id
       this.Nombre = data.fields.Nombre
       this.Correo = data.fields.Correo
@@ -278,13 +287,33 @@ export default {
         setTimeout(() => this.message = '', 2000);
     },
 
-    async createItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante){
+    handleFileUpload(event){
+      this.selectedFile = event.target.files[0];
+    },
+
+
+    async createItem(Nombre, Correo, Numero, LinkedIn, Estado, Vacante){
       this.viewModalAdd = false
       this.regLoading = true
       this.process = 'Creando contrato'
 
+      let url = ''
+      if (this.selectedFile){
+        const response = await AirtableService.uploadToImgBB(this.selectedFile); 
+        if(response && response !== null){
+           url = response
+        }else{
+           this.selectedFile=null
+        }
+      }
+
+     
+      let data = { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] }
+      if(url){
+        data = { ...data , "Foto de perfil": [{ url }]}
+      }
       const response = await this.addItem({
-        data: { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] },
+        data,
         table_name: 'Contrataciones'
       })
 
@@ -301,14 +330,29 @@ export default {
       }
     },
 
-    async updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante){
+    async updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Vacante){
       this.viewModalEdit = false
       this.regLoading = true
       this.process = 'Actualizando contrato'
 
+      let url = ''
+      if (this.selectedFile){
+        const response = await AirtableService.uploadToImgBB(this.selectedFile); 
+        if(response && response !== null){
+           url = response
+        }else{
+           this.selectedFile=null
+        }
+      }
+    
+      let data =  { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] }
+      if(url){
+        data = { ...data , "Foto de perfil": [{ url }]}
+      }
+
       await this.editItem({
         id: this.id,
-        data: { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] },
+        data,
         table_name: 'Contrataciones'
       })
       this.clearValues()
