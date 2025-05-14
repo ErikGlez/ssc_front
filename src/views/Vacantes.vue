@@ -139,6 +139,11 @@
         </div>
     </div>
 
+     <div class="mgs_error" v-if="message">
+      <p>{{ message }}</p>
+    </div>
+   
+    
   </div>
 </template>
 
@@ -159,6 +164,7 @@ export default {
         formatCurrency,
         includesValue,
 
+        message:'',
         id: '',
         Puesto:'',
         Descripcion:'',
@@ -179,8 +185,9 @@ export default {
   },
   computed:{
     listVacantes(){
-        const data = this.$store.getters["vacantes/data"];
+        let data = this.$store.getters["vacantes/data"];
         if (!Array.isArray(data)) return []
+         data = data.sort((a, b) =>  new Date(b.createdTime) - new Date(a.createdTime)  )
         if (this.search_value !== '') {
             return data.filter(item => this.includesValue(this.search_value, item.fields.Puesto))
         }
@@ -188,7 +195,7 @@ export default {
     }
   },
   methods:{
-    ...mapActions('vacantes', ['getAllInfo', 'deleteItem', 'addItem' , 'editItem']),
+    ...mapActions('vacantes', ['getAllInfoVacantes', 'deleteItem', 'addItem' , 'editItem']),
     setValues(item){
       const data = structuredClone(item)
       this.id = data.id
@@ -200,7 +207,7 @@ export default {
     async updateInfo(){
         this.regLoading = true
         this.process = 'Obteniendo vacantes'
-        await this.getAllInfo('Vacantes')
+        await this.getAllInfoVacantes('Vacantes')
         this.regLoading = false
         this.process = ''
     },
@@ -211,6 +218,11 @@ export default {
       this.Salario = ''
       this.Departamento = ''
       this.itemSel = null
+      this.id = ''
+    },
+
+    clearError: function () {
+        setTimeout(() => this.message = '', 2000);
     },
 
     async createItem(Puesto, Descripcion, Salario, Departamento){
@@ -218,7 +230,7 @@ export default {
       this.regLoading = true
       this.process = 'Creando vacante'
 
-      await this.addItem({
+      const response = await this.addItem({
         data: { Puesto, Descripcion, Salario: parseFloat(Salario), Departamento },
         table_name: 'Vacantes'
       })
@@ -228,6 +240,10 @@ export default {
       await this.updateInfo() 
       this.regLoading = false
       this.process = ''
+       if(!response?.id){
+        this.message = "Ha ocurrido un error al intentar agregar la vacante."
+        this.clearError()
+      }
 
     },
 

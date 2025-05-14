@@ -2,8 +2,8 @@
   <div class="optionContent">
 
     <div style="display: flex; align-items: center;">
-      <button class="btnAdd">
-          Añadir registro
+      <button class="btnAdd" @click="viewModalAdd=true">
+          Añadir contrato
       </button>
 
       <div class="search">
@@ -36,7 +36,7 @@
                       'bg-3': item.fields.Estado === 'Pendiente',
                       'bg-5': item.fields.Estado === 'En Proceso', 'color-wh': item.fields.Estado === 'Pendiente' ||  item.fields.Estado === 'Completada',}"  > {{ item.fields.Estado }}</span>
                   </p>
-                  <p class="md" ><img :src="`${ item.fields['Foto de perfil'][0].thumbnails.small.url }`" @click="viewModalFoto=true, urlFoto = item.fields['Foto de perfil'][0].thumbnails.full.url " alt="Foto de perfil" style="cursor: pointer;"></p>
+                  <p class="md" ><img v-if="item.fields['Foto de perfil']" :src="`${ item.fields['Foto de perfil'][0].thumbnails.small.url }`" @click="viewModalFoto=true, urlFoto = item.fields['Foto de perfil'][0].thumbnails.full.url " alt="Foto de perfil" style="cursor: pointer;"></p>
                   <p class="md">{{ item.fields.Creada | formatDate }}</p>
               
                 <p class="op"><svg data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
@@ -71,6 +71,63 @@
     <div v-if="viewModalFoto" class="modalView" @click="urlFoto = '', viewModalFoto= false">
             <img style="height: 25rem;" :src="`${urlFoto}`" alt="">
     </div>
+
+
+    <div v-if="viewModalAdd" class="modalView">
+        <div class="modalAdd">
+          <form @submit.prevent="createItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante)">
+            <div class="close" @click="clearValues(), viewModalAdd=false">
+            <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
+          </div>
+          <div class="modalAddBody">
+            <h2>Nueva contratación</h2>
+
+
+            <div class="grpForm">
+              <label for="Vacante">Selecciona la vacante a la que esta postulando</label>
+              <select v-model="Vacante" name="Vacante" id="Vacante" required>
+                <option :value="item" v-for="(item, index) in listVacantes" :key="index">Puesto: {{ item.fields.Puesto }} - ${{ formatCurrency(item.fields.Salario) }}</option>
+              </select>
+            </div>
+ 
+            <div class="grpForm">
+              <label for="Nombre">Nombre</label>
+              <input type="text" v-model="Nombre" required>
+            </div>
+            <div class="grpForm">
+              <label for="Correo">Correo</label>
+              <input type="email" v-model="Correo" required>
+            </div>
+             <div class="grpForm">
+              <label for="Numero">Número de teléfono</label>
+              <input type="text" v-model="Numero" required placeholder="(622) 123-0123"  pattern="\(\d{3}\) \d{3}-\d{4}" title="El formato debe ser: (622) 123-0123">
+            </div>
+           <div class="grpForm">
+              <label for="LinkedIn">LinkedIn</label>
+              <input type="text" v-model="LinkedIn" required>
+            </div>
+           <div class="grpForm">
+              <label for="Vacante">Estado</label>
+              <select v-model="Estado" name="Estado" id="Estado" required>
+                <option :value="item" v-for="(item, index) in listEstado" :key="index">{{ item }}</option>
+              </select>
+            </div>
+
+            
+          </div>
+          <div class="modalAddFooter" >
+            <p @click="clearValues()">Borrar formulario</p>
+            <button class="btnAdd" type="submit">
+              Crear
+            </button>
+          </div>
+          </form>
+        </div>
+    </div>
+
+    <div class="mgs_error" v-if="message">
+      <p>{{ message }}</p>
+    </div>
    
 
   </div>
@@ -92,7 +149,23 @@ export default {
         urlFoto: '',
         itemSel: null,
         formatCurrency,
-        includesValue
+        includesValue,
+
+        message: '',
+        viewModalAdd: false,
+        id:'',
+        Nombre:'',
+        Correo:'',
+        Numero:'',
+        LinkedIn:'',
+        Estado:'',
+        Foto_de_perfil:'',
+        Vacante: '',
+        listEstado: [
+        'Completada',
+        'Pendiente',
+        'En Proceso'
+        ],
     }
   },
   async created(){
@@ -100,20 +173,67 @@ export default {
   },
   computed:{
     listContrataciones(){
-        const data = this.$store.getters["contrataciones/data"];
+        let data = this.$store.getters["contrataciones/data"];
         if (!Array.isArray(data)) return []
+        data = data.sort((a, b) => new Date(b.fields.Creada) - new Date(a.fields.Creada))
         if (this.search_value !== '') {
             return data.filter(item => this.includesValue(this.search_value, item.fields.Nombre))
         }
         return data
+    },
+    listVacantes(){
+        const data = this.$store.getters["vacantes/data"];
+        if (!Array.isArray(data)) return []
+        return data
     }
   },
   methods:{
-    ...mapActions('contrataciones', ['getAllInfo', 'deleteItem']),
+    ...mapActions('contrataciones', ['getAllInfo', 'deleteItem', 'addItem']),
+    ...mapActions('vacantes', ['getAllInfoVacantes']),
+     clearValues(){
+      this.id =''
+      this.Nombre =''
+      this.Correo =''
+      this.LinkedIn =''
+      this.Estado =''
+      this.Numero =''
+      this.Foto_de_perfil =''
+      this.Vacante =''
+      this.itemSel = null
+      this.id = ''
+    },
+
+    clearError: function () {
+        setTimeout(() => this.message = '', 2000);
+    },
+
+    async createItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante){
+      this.viewModalAdd = false
+      this.regLoading = true
+      this.process = 'Creando contrato'
+
+      const response = await this.addItem({
+        data: { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] },
+        table_name: 'Contrataciones'
+      })
+
+      
+      this.clearValues()
+
+      this.process = 'Obteniendo información'
+      await this.updateInfo() 
+      this.regLoading = false
+      this.process = ''
+      if(!response?.id){
+        this.message = "Ha ocurrido un error al intentar agregar el contrato."
+        this.clearError()
+      }
+    },
+
     async updateInfo(){
         this.regLoading = true
         this.process = 'Obteniendo contrataciones'
-        await this.getAllInfo('Contrataciones')
+        await Promise.all([this.getAllInfo('Contrataciones'), this.getAllInfoVacantes('Vacantes')])
         this.regLoading = false
         this.process = ''
     },
@@ -121,7 +241,7 @@ export default {
     async remove(){
       this.viewModal = false
       this.regLoading = true
-      this.process = 'Eliminando vacante'
+      this.process = 'Eliminando contrato'
 
       await this.deleteItem({
         id: this.itemSel.id,

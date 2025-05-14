@@ -13,7 +13,7 @@
 
 .modalContent{
    width: 16.383333vw;
-    height: 8vw;
+    height: auto;
     position: absolute;
     top: 17vw;
     right: 40.5vw;
