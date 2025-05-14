@@ -20,7 +20,7 @@
             <p class="lrg">Vacante Puesto</p>
             <p class="md">Estado</p>
             <p class="md">Foto de perfil</p>
-            <p class="md">Creada</p>
+            <p class="md">Fecha de creación</p>
             <p class="op"> Editar </p>
             <p class="op"> Eliminar</p>
         </div>
@@ -39,7 +39,7 @@
                   <p class="md" ><img v-if="item.fields['Foto de perfil']" :src="`${ item.fields['Foto de perfil'][0].thumbnails.small.url }`" @click="viewModalFoto=true, urlFoto = item.fields['Foto de perfil'][0].thumbnails.full.url " alt="Foto de perfil" style="cursor: pointer;"></p>
                   <p class="md">{{ item.fields.Creada | formatDate }}</p>
               
-                <p class="op"><svg data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
+                <p class="op"><svg @click="viewModalEdit=true, setValues(item)" data-icon-name="edit-alt" data-style="line" icon_origin_id="20455" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="edit-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: blue; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M20.41,7.83,7.24,21H3V16.76L16.17,3.59a1,1,0,0,1,1.42,0l2.82,2.82A1,1,0,0,1,20.41,7.83Z" id="primary"></path></svg></p>
                 <p class="op"><svg @click="viewModal=true, itemSel = item" data-icon-name="delete-alt" data-style="line" icon_origin_id="20441" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="delete-alt" class="icon line" width="48" height="48"><path style="fill: none; stroke: red; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" d="M4,7H20M16,7V4a1,1,0,0,0-1-1H9A1,1,0,0,0,8,4V7M18,20V7H6V20a1,1,0,0,0,1,1H17A1,1,0,0,0,18,20Zm-8-9v6m4-6v6" id="primary"></path></svg></p>
             </div>
         </div> 
@@ -125,10 +125,67 @@
         </div>
     </div>
 
+    <div v-if="viewModalEdit" class="modalView">
+        <div class="modalAdd">
+          <form @submit.prevent="updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante)">
+            <div class="close" @click="clearValues(), viewModalEdit = false">
+            <svg data-icon-name="cross" data-style="line" icon_origin_id="20398" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="cross" class="icon line" width="48" height="48"><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="5" x2="5" y1="19" x1="19" id="primary"></line><line style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;" y2="19" x2="5" y1="5" x1="19" data-name="primary" id="primary-2"></line></svg>
+          </div>
+          <div class="modalAddBody">
+            <h2>Actualizar contratación</h2>
+
+
+            <div class="grpForm">
+              <label for="Vacante">Selecciona la vacante a la que esta postulando</label>
+              <select v-model="Vacante" name="Vacante" id="Vacante" required>
+                <option :value="item" v-for="(item, index) in listVacantes" :key="index">Puesto: {{ item.fields.Puesto }} - ${{ formatCurrency(item.fields.Salario) }}</option>
+              </select>
+            </div>
+ 
+            <div class="grpForm">
+              <label for="Nombre">Nombre</label>
+              <input type="text" v-model="Nombre" required>
+            </div>
+            <div class="grpForm">
+              <label for="Correo">Correo</label>
+              <input type="email" v-model="Correo" required>
+            </div>
+             <div class="grpForm">
+              <label for="Numero">Número de teléfono</label>
+              <input type="text" v-model="Numero" required placeholder="(622) 123-0123"  pattern="\(\d{3}\) \d{3}-\d{4}" title="El formato debe ser: (622) 123-0123">
+            </div>
+           <div class="grpForm">
+              <label for="LinkedIn">LinkedIn</label>
+              <input type="text" v-model="LinkedIn" required>
+            </div>
+           <div class="grpForm">
+              <label for="Vacante">Estado</label>
+              <select v-model="Estado" name="Estado" id="Estado" required>
+                <option :value="item" v-for="(item, index) in listEstado" :key="index">{{ item }}</option>
+              </select>
+            </div>
+
+
+            <div class="grpForm">
+              <label style="font-weight: 300; text-align: right; margin-top: 4rem;">Ultima actualización el {{ updated_at | formatDateFull }}</label>
+            </div>
+            
+          </div>
+          <div class="modalAddFooter" >
+            <p @click="clearValues(), viewModalEdit = false">cancelar</p>
+            <button class="btnAdd" type="submit">
+              Actualizar
+            </button>
+          </div>
+          </form>
+        </div>
+    </div>
+
+
     <div class="mgs_error" v-if="message">
       <p>{{ message }}</p>
     </div>
-   
+    
 
   </div>
 </template>
@@ -150,10 +207,11 @@ export default {
         itemSel: null,
         formatCurrency,
         includesValue,
-
+        viewModalEdit:false,
         message: '',
         viewModalAdd: false,
         id:'',
+        updated_at: '',
         Nombre:'',
         Correo:'',
         Numero:'',
@@ -162,9 +220,9 @@ export default {
         Foto_de_perfil:'',
         Vacante: '',
         listEstado: [
-        'Completada',
-        'Pendiente',
-        'En Proceso'
+          'Pendiente',
+          'En Proceso',
+          'Completada'
         ],
     }
   },
@@ -188,7 +246,7 @@ export default {
     }
   },
   methods:{
-    ...mapActions('contrataciones', ['getAllInfo', 'deleteItem', 'addItem']),
+    ...mapActions('contrataciones', ['getAllInfo', 'deleteItem', 'addItem' , 'editItem']),
     ...mapActions('vacantes', ['getAllInfoVacantes']),
      clearValues(){
       this.id =''
@@ -201,8 +259,21 @@ export default {
       this.Vacante =''
       this.itemSel = null
       this.id = ''
+      this.updated_at = ''
     },
-
+     setValues(item){
+      const data = structuredClone(item)
+      console.log(data)
+      this.id = data.id
+      this.Nombre = data.fields.Nombre
+      this.Correo = data.fields.Correo
+      this.LinkedIn = data.fields.LinkedIn
+      this.Estado = data.fields.Estado
+      this.Numero = data.fields["Número de teléfono"]
+      this.Foto_de_perfil = '' //pendiente conectar
+      this.Vacante = this.listVacantes.filter(item=> item.id === data.fields.Vacantes[0])[0]
+      this.updated_at = data.fields["Última modificación"]
+    },
     clearError: function () {
         setTimeout(() => this.message = '', 2000);
     },
@@ -228,6 +299,25 @@ export default {
         this.message = "Ha ocurrido un error al intentar agregar el contrato."
         this.clearError()
       }
+    },
+
+    async updateItem(Nombre, Correo, Numero, LinkedIn, Estado, Foto_de_perfil, Vacante){
+      this.viewModalEdit = false
+      this.regLoading = true
+      this.process = 'Actualizando contrato'
+
+      await this.editItem({
+        id: this.id,
+        data: { Nombre, Correo, "Número de teléfono": Numero, LinkedIn, Estado, Vacantes:[ Vacante.id] },
+        table_name: 'Contrataciones'
+      })
+      this.clearValues()
+
+      this.process = 'Obteniendo información'
+      await this.updateInfo() 
+      this.regLoading = false
+      this.process = ''
+
     },
 
     async updateInfo(){
@@ -259,6 +349,9 @@ export default {
   filters:{
     formatDate(date){
       return dayjs(date).format('DD/M/YYYY')
+    },
+     formatDateFull(date){
+      return dayjs(date).format('DD/MM/YYYY HH:mm:ss')
     }
   }
 }
