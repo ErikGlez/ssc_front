@@ -185,8 +185,9 @@ export default {
   },
   computed:{
     listVacantes(){
-        const data = this.$store.getters["vacantes/data"];
+        let data = this.$store.getters["vacantes/data"];
         if (!Array.isArray(data)) return []
+         data = data.sort((a, b) =>  new Date(b.createdTime) - new Date(a.createdTime)  )
         if (this.search_value !== '') {
             return data.filter(item => this.includesValue(this.search_value, item.fields.Puesto))
         }

@@ -173,8 +173,9 @@ export default {
   },
   computed:{
     listContrataciones(){
-        const data = this.$store.getters["contrataciones/data"];
+        let data = this.$store.getters["contrataciones/data"];
         if (!Array.isArray(data)) return []
+        data = data.sort((a, b) => new Date(b.fields.Creada) - new Date(a.fields.Creada))
         if (this.search_value !== '') {
             return data.filter(item => this.includesValue(this.search_value, item.fields.Nombre))
         }
@@ -240,7 +241,7 @@ export default {
     async remove(){
       this.viewModal = false
       this.regLoading = true
-      this.process = 'Eliminando vacante'
+      this.process = 'Eliminando contrato'
 
       await this.deleteItem({
         id: this.itemSel.id,
